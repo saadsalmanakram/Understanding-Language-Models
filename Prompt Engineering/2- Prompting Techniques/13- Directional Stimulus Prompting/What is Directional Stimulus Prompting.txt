@@ -1,0 +1,8 @@
+Here's an easier and more understandable version of the text:
+
+Directional Stimulus Prompting
+Li et al. (2023) introduces a new way to give prompts that helps large language models (LLMs) produce better summaries.
+
+In this method, a smaller, adjustable model is trained to create helpful hints or suggestions for the LLM. This approach uses reinforcement learning (RL) to fine-tune the process, which is becoming more common in improving LLM performance.
+
+The figure below compares Directional Stimulus Prompting with traditional prompting. The smaller model generates these hints to guide a larger, pre-trained LLM that remains unchanged.
