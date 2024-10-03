@@ -1,0 +1,162 @@
+We looked at how to run a model on a single, short sequence of text. But some questions arise:
+
+  1. How do we handle multiple sequences?
+  2. How do we handle sequences of different lengths?
+  3. Are there other inputs besides vocabulary indices that make the model work well?
+  4. Can a sequence be too long for the model?
+
+We'll explore these questions and how to solve them using the 🤗 Transformers API.
+
+>> Models Expect a Batch of Inputs
+
+   When using a model, we usually pass multiple sequences at once, which is called batching. Let's see what happens if we try to send a single sequence to the model:
+
+python code
+
+'''
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+checkpoint = "distilbert-base-uncased-finetuned-sst-2-english"
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
+
+sequence = "I've been waiting for a HuggingFace course my whole life."
+
+tokens = tokenizer.tokenize(sequence)
+ids = tokenizer.convert_tokens_to_ids(tokens)
+input_ids = torch.tensor(ids)
+
+# This line will fail because the model expects a batch of sequences
+model(input_ids)
+'''
+
+This will result in an error because the model expects a batch of sequences, not just one.
+
+>> Fixing the Error by Adding a Batch Dimension
+
+To fix this, we need to add a dimension to our input to make it look like a batch, even if it’s just one sequence:
+
+python code
+
+'''
+import torch
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+
+checkpoint = "distilbert-base-uncased-finetuned-sst-2-english"
+tokenizer = AutoTokenizer.from_pretrained(checkpoint)
+model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
+
+sequence = "I've been waiting for a HuggingFace course my whole life."
+
+tokens = tokenizer.tokenize(sequence)
+ids = tokenizer.convert_tokens_to_ids(tokens)
+
+# Add a batch dimension
+input_ids = torch.tensor([ids])
+print("Input IDs:", input_ids)
+
+output = model(input_ids)
+print("Logits:", output.logits)
+'''
+
+Here, we print the input IDs and the resulting logits (the output from the model).
+
+>> Batching Multiple Sequences
+
+   Batching means sending multiple sequences to the model at once. If you have only one sequence, you can create a batch by repeating it:
+
+python code
+
+'''
+batched_ids = [ids, ids]
+'''
+
+This batch contains two identical sequences. You can pass this batch through the model to get the logits for each sequence.
+
+>> Handling Sequences of Different Lengths
+
+   When dealing with multiple sequences, they might have different lengths. However, tensors (the data structure models work with) need to have a rectangular shape. To deal with this, we use **padding**, which makes all sequences the same length by adding a special padding token.
+
+For example:
+
+python code
+
+'''
+batched_ids = [
+    [200, 200, 200],
+    [200, 200]
+]
+'''
+
+We can pad the shorter sequence like this:
+
+python code
+
+'''
+padding_id = 100
+
+batched_ids = [
+    [200, 200, 200],
+    [200, 200, padding_id],
+]
+'''
+
+You can find the padding token ID in `tokenizer.pad_token_id`. Let’s see how the model handles these sequences:
+
+python code
+
+'''
+model = AutoModelForSequenceClassification.from_pretrained(checkpoint)
+
+sequence1_ids = [[200, 200, 200]]
+sequence2_ids = [[200, 200]]
+batched_ids = [
+    [200, 200, 200],
+    [200, 200, tokenizer.pad_token_id],
+]
+
+print(model(torch.tensor(sequence1_ids)).logits)
+print(model(torch.tensor(sequence2_ids)).logits)
+print(model(torch.tensor(batched_ids)).logits)
+'''
+
+>> Using Attention Masks
+
+To make sure the model ignores the padding tokens, we use an attention mask. This mask tells the model which tokens to focus on and which to ignore.
+
+python code
+
+'''
+batched_ids = [
+    [200, 200, 200],
+    [200, 200, tokenizer.pad_token_id],
+]
+
+attention_mask = [
+    [1, 1, 1],
+    [1, 1, 0],
+]
+
+outputs = model(torch.tensor(batched_ids), attention_mask=torch.tensor(attention_mask))
+print(outputs.logits)
+'''
+
+Now, the model will correctly ignore the padding tokens, giving you the right logits for each sequence.
+
+>> Handling Longer Sequences
+
+   Transformer models have a limit on the length of sequences they can handle (usually 512 or 1024 tokens). If your sequence is longer, you can either:
+
+   1. Use a model designed for longer sequences (like Longformer or LED).
+   2. Truncate your sequences to a manageable length.
+
+For truncation, you can simply slice the sequence to the desired length:
+
+python code
+
+'''
+sequence = sequence[:max_sequence_length]
+'''
+
+This ensures your model handles the input without crashing.
