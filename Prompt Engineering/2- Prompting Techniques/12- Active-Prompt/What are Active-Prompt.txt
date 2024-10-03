@@ -1,0 +1,10 @@
+Chain-of-Thought (CoT) methods usually use a fixed set of examples that have been labeled by humans. However, these examples might not always work well for every task. To solve this, Diao et al. (2023) introduced a new way to help Large Language Models (LLMs) adapt better to different tasks, called Active-Prompt. It customizes task-specific example prompts that include human-designed reasoning.
+
+Here's how it works:
+1. The LLM is asked a set of questions, either with or without a few reasoning examples.
+2. It generates multiple (k) possible answers for each question.
+3. The model checks how much these answers differ, using a disagreement score.
+4. The most uncertain questions (those with the most disagreement) are sent to humans for further annotation.
+5. The newly annotated examples are then used to help the LLM answer questions more accurately.
+
+This process improves how the LLM handles different types of tasks by continuously refining the examples it learns from.
