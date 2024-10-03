@@ -1,4 +1,4 @@
-### Key Parts of a Prompt (Simplified)
+> Key Parts of a Prompt (Simplified)
 
 As you dive into prompt engineering, you'll notice that prompts often have certain key components that help guide AI models in performing tasks. These are the typical elements
 
@@ -7,7 +7,7 @@ As you dive into prompt engineering, you'll notice that prompts often have certa
 3. Input Data – The question or data you're seeking a response for.
 4. Output Indicator – The format or type of answer you're expecting.
 
-#### Example of Prompt Components
+> Example of Prompt Components
 
 Let’s break this down with a simple example where we want to classify a piece of text
 
