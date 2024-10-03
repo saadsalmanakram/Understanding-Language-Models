@@ -1,0 +1,6 @@
+Multimodal Chain-of-Thought Prompting
+
+Zhang et al. (2023) introduced a new method called multimodal chain-of-thought (CoT) prompting. Unlike traditional CoT, which only focuses on language, this new approach combines both text and images. It works in two main steps: 
+
+1. Generating Rationale: The first step creates explanations or reasons based on both text and visual information.
+2. Inferring Answers: The second step uses these explanations to help come up with the final answers.
