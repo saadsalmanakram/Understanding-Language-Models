@@ -1,0 +1,39 @@
+This task checks how well a Large Language Model (LLM) can recognize the tone or sentiment in a piece of text. The LLM needs to label the text as having a neutral, negative, or positive sentiment.
+
+Prompt
+You give the LLM a sentence, and it will classify whether the tone of the text is neutral, negative, or positive. For example:
+
+- Text: "I think the food was okay."  
+- Sentiment: Neutral
+
+Prompt Template 
+You can use this template to classify any text:
+
+- Text: {your input}  
+- Sentiment: {output from the LLM}
+
+Code / API Usage
+
+You can use the OpenAI API to get the LLM to classify text sentiment. Here’s a simple Python code example:
+
+```python
+from openai import OpenAI
+client = OpenAI()
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    messages=[
+        {
+            "role": "user",
+            "content": "Classify the text into neutral, negative, or positive\nText: I think the food was okay.\nSentiment:\n"
+        }
+    ],
+    temperature=1,
+    max_tokens=256,
+    top_p=1,
+    frequency_penalty=0,
+    presence_penalty=0
+)
+```
+
+This code sends the text "I think the food was okay." to the GPT-4 model and asks it to classify the sentiment. The model will return either neutral, negative, or positive as the sentiment label.
