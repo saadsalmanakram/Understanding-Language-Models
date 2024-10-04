@@ -9,7 +9,9 @@ Ask the user for their name and greet them by saying "Hello".
 */
 ```
 
-Generated Code using OpenAI API:
+Model: GPT-4
+
+
 ```python
 from openai import OpenAI
 
@@ -32,6 +34,8 @@ response = client.chat.completions.create(
     presence_penalty=0  # Controls how much the model talks about new topics
 )
 ```
+
+Model: Mixtral MoE 8x7B Instruct(Fireworks)
 
 ```python
 
