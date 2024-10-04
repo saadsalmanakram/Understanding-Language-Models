@@ -1,0 +1,71 @@
+This task checks how well a large language model (LLM) can classify the emotional tone (sentiment) of a sentence, like whether it's positive or negative. The idea is to provide the LLM with a few examples (called "few-shot") of sentences paired with their correct sentiment, and then ask it to classify a new sentence.
+
+Task Explanation
+In this prompt, we're giving the LLM a few examples of sentences with a **mismatch** between their content and the labeled sentiment (on purpose, to test its understanding). The LLM should recognize this and provide the correct sentiment for the last sentence.
+
+Example Prompt
+- This is awesome! // Label: Negative (even though it's actually positive, the label is wrong to test the model)
+- This is bad! // Label: Positive (again, the label is wrong)
+- Wow that movie was rad! // Label: Positive (this one is correct)
+- What a horrible show! // (This one has no label; the model should figure it out)
+
+Here, we expect the model to classify the last sentence as Negative (because it's a complaint about the show).
+
+Code Explanation
+The following code is used to interact with OpenAI's language model (such as GPT-4) to perform this task:
+
+Model: GPT-4
+
+```python
+
+from openai import OpenAI  # Import OpenAI library
+client = OpenAI()  # Create a client to talk to OpenAI's API
+ 
+response = client.chat.completions.create(  # Sending a request to the model
+    model="gpt-4",  # Specifying the model to use
+    messages=[
+        {
+        "role": "user",  # Defining the user's input
+        "content": "This is awesome! // Negative\nThis is bad! // Positive\nWow that movie was rad! // Positive\nWhat a horrible show! //"  # Few-shot examples plus the new sentence to classify
+        }
+    ],
+    temperature=1,  # Controls randomness; a higher number means more creative responses
+    max_tokens=256,  # Maximum number of words/tokens the model can output
+    top_p=1,  # Sampling parameter for choosing the best words
+    frequency_penalty=0,  # Avoid repeating the same words
+    presence_penalty=0  # Encourage the model to introduce new ideas
+)
+```
+
+Model= Mixtral MoE 8x7B Instruct(Fireworks)
+
+
+```python
+
+import fireworks.client
+fireworks.client.api_key = "<FIREWORKS_API_KEY>"
+completion = fireworks.client.ChatCompletion.create(
+    model="accounts/fireworks/models/mixtral-8x7b-instruct",
+    messages=[
+        {
+        "role": "user",
+        "content": "This is awesome! // Negative\nThis is bad! // Positive\nWow that movie was rad! // Positive\nWhat a horrible show! //",
+        }
+    ],
+    stop=["<|im_start|>","<|im_end|>","<|endoftext|>"],
+    stream=True,
+    n=1,
+    top_p=1,
+    top_k=40,
+    presence_penalty=0,
+    frequency_penalty=0,
+    prompt_truncate_len=1024,
+    context_length_exceeded_behavior="truncate",
+    temperature=0.9,
+    max_tokens=4000
+)
+```
+
+In Summary
+- Few-shot learning: You provide a few examples to help the LLM understand how to classify sentences into positive or negative sentiments.
+- Code: You send these examples, plus a new sentence, to the GPT model and ask it to classify the new sentence's sentiment.
