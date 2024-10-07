@@ -1,0 +1,4 @@
+LLM as a Judge:
+
+- What it is: Using large language models (LLMs) to automatically evaluate the system’s output.
+- Why it matters: As LLMs improve, they are becoming better at evaluating language quality and content, making this method more popular.
