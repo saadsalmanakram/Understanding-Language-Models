@@ -1,0 +1,1 @@
+Query translation is the process of modifying or rephrasing a query to improve how well a system can understand and retrieve relevant information. This can involve rewriting, breaking down, or simplifying the query to enhance search accuracy and generate better results.
