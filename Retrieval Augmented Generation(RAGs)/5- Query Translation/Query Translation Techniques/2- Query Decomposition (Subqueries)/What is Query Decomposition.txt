@@ -1,0 +1,1 @@
+This approach involves breaking a complex query into smaller sub-queries. Each sub-query focuses on a part of the problem, making it easier to handle complicated questions involving multiple ideas or steps.
