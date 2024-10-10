@@ -1,8 +1,11 @@
 These are safety mechanisms that restrict or guide the behavior of AI systems to ensure responsible outputs. In RAG, guardrails are used to prevent harmful, biased, or factually incorrect content from being generated. They ensure the generated responses adhere to ethical, legal, or domain-specific guidelines.
 
-Grounding ensures that the system’s responses are based on real, verifiable information from the knowledge base.
+> Guardrails help prevent the system from giving responses that are:
+  - Off-Topic: Unrelated to the user’s question.
+  - Inappropriate: Offensive, harmful, or biased.
+  - Inconsistent: Contradictory or unclear.
 
-In Wandbot, we use strong grounding by:
-
-- Linking to Documentation: Ensuring all answers directly reference official Weights & Biases documentation.
-- Fact-Checking: Cross-referencing answers with the knowledge base to reduce errors or made-up information (hallucinations).
+> Techniques for Guardrails:
+  - Structural Checks: Making sure answers follow a set format, like using bullet points for lists.
+  - Semantic Filters: Blocking responses that use inappropriate language or concepts.
+  - Safety Measures: Adding filters or classifiers to detect and stop harmful content.
