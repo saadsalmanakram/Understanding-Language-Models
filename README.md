@@ -1,5 +1,35 @@
 # Understanding-Language-Models
-Understanding Language Models in detail. The different architectures and all core concepts.
 
-Hello Github community, just wanted to mention a few things. The idea of this repository is to understand the key concepts and eveything related to Large Language Models.
-Also the idea is not to clean sole ownership of every content in this repo. You are free to use it and learn from it. I myself have learned and gather a lot of knowledge from other resources like Hugging Face, promptingguide.ai etc. And a huge shoutout to hugging face for providing valueable resource, so if any content or information resembles with Huggingface or any other entity remember its their original content and they rightfully own it. So just keep an open mind and just learn...
+## 📌 Introduction
+Welcome to **Understanding-Language-Models**, a comprehensive repository dedicated to exploring the fundamental concepts, architectures, and core principles behind **Large Language Models (LLMs)**. This repository serves as an educational resource for enthusiasts, students, and professionals eager to delve into the mechanics of how these models function, their evolution, and how they are leveraged in modern AI applications.
+
+## 🎯 Objective
+The primary goal of this repository is to **break down complex topics** related to LLMs and make them **accessible** to a wide audience. Whether you're a beginner or an experienced practitioner, this repository will help you gain a deeper understanding of Language Models.
+
+## 📖 Resources and Acknowledgements
+I have learned and gathered a lot of knowledge from various sources, including **Hugging Face**, **PromptingGuide.ai**, and other valuable research papers and tutorials. A huge shoutout to Hugging Face for providing open-access educational materials and pre-trained models.
+
+⚠️ **Disclaimer:** Some content in this repository may resemble concepts, explanations, or code from Hugging Face and other sources. **All credit rightfully belongs to their respective authors and organizations.** The purpose of this repository is purely **educational** and meant for knowledge sharing.
+
+## 💡 How to Use This Repository
+- **Explore:** Browse through the different sections to understand various aspects of LLMs.
+- **Contribute:** Feel free to contribute by improving documentation, adding tutorials, or fixing errors.
+- **Experiment:** Try out hands-on implementations and extend them with your own ideas.
+- **Engage:** Discussions and contributions are welcome. Feel free to open issues or PRs if you have suggestions or improvements.
+
+## 🤝 Contributing
+Contributions are always welcome! If you have something to add, please fork this repository, make your changes, and submit a pull request.
+
+## 📜 License
+This repository is meant for educational purposes and follows an open-source philosophy. However, respect the intellectual property of third-party resources and cite them properly where applicable.
+
+---
+
+### 📬 Connect With Me
+- **GitHub:** [@saadsalmanakram](https://github.com/saadsalmanakram)
+- **LinkedIn:** [Saad Salman Akram](https://www.linkedin.com/in/saadsalmanakram/)
+- **Hugging Face:** [SaadSalman7](https://huggingface.co/SaadSalman7)
+- **Kaggle:** [@codecavalier](https://www.kaggle.com/codecavalier)
+
+Happy Learning! 🚀
+
