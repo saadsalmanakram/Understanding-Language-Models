@@ -1,147 +1,144 @@
 
-### Fine-tuning a Pretrained Model
+---
 
-Fine-tuning a pretrained model reduces computation costs, carbon footprint, and allows leveraging state-of-the-art models for specific tasks.
+### Fine-Tune a Pretrained Model with PyTorch
 
-**Steps:**
+Fine-tuning a pretrained model allows you to leverage the power of large, state-of-the-art models without the need to train them from scratch. Using Hugging Face's 🤗 Transformers, you can fine-tune models for various tasks like text classification. Below is a step-by-step guide to fine-tuning a model using PyTorch.
 
-1. **Prepare Dataset:**
-   - Load a dataset (e.g., Yelp Reviews dataset) using `datasets` library.
+#### 1. Prepare the Dataset
 
-   ```python
-   from datasets import load_dataset
-   dataset = load_dataset("yelp_review_full")
-   ```
+Start by loading a dataset. In this case, we will use the **Yelp Reviews** dataset for a sequence classification task.
 
-2. **Tokenizer:**
-   - Use the `AutoTokenizer` to tokenize the text data, and apply padding and truncation strategies to handle varying sequence lengths.
+```python
+from datasets import load_dataset
 
-   ```python
-   from transformers import AutoTokenizer
-   tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-cased")
-   
-   def tokenize_function(examples):
-       return tokenizer(examples["text"], padding="max_length", truncation=True)
-   
-   tokenized_datasets = dataset.map(tokenize_function, batched=True)
-   ```
+dataset = load_dataset("yelp_review_full")
+dataset["train"][100]
+```
 
-3. **Create Subset (Optional):**
-   - Optionally, create a smaller dataset for faster fine-tuning.
+The dataset will look something like this:
+```json
+{
+  'label': 0,
+  'text': 'My expectations for McDonalds are t rarely high. But for one to still fail so spectacularly...that takes something special!...'
+}
+```
 
-   ```python
-   small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
-   small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
-   ```
+We need to process the text and tokenize it for the model. Use the Hugging Face tokenizer to convert the text into a format the model can understand.
 
-4. **Fine-tuning with PyTorch**:
+```python
+from transformers import AutoTokenizer
 
-   - Load the model for sequence classification with the correct number of labels (e.g., 5 labels for Yelp Review dataset).
+tokenizer = AutoTokenizer.from_pretrained("google-bert/bert-base-cased")
 
-   ```python
-   from transformers import AutoModelForSequenceClassification
-   model = AutoModelForSequenceClassification.from_pretrained("google-bert/bert-base-cased", num_labels=5, torch_dtype="auto")
-   ```
+def tokenize_function(examples):
+    return tokenizer(examples["text"], padding="max_length", truncation=True)
 
-5. **Training Arguments:**
-   - Define training arguments such as output directory and evaluation strategy.
+tokenized_datasets = dataset.map(tokenize_function, batched=True)
+```
 
-   ```python
-   from transformers import TrainingArguments
-   training_args = TrainingArguments(output_dir="test_trainer", eval_strategy="epoch")
-   ```
+You can create a smaller subset for faster training:
 
-6. **Compute Metrics:**
-   - Define how evaluation metrics will be calculated during training.
+```python
+small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
+small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(1000))
+```
 
-   ```python
-   import numpy as np
-   import evaluate
+#### 2. Fine-Tuning with PyTorch
 
-   metric = evaluate.load("accuracy")
+##### Load the Pretrained Model
 
-   def compute_metrics(eval_pred):
-       logits, labels = eval_pred
-       predictions = np.argmax(logits, axis=-1)
-       return metric.compute(predictions=predictions, references=labels)
-   ```
+Now, let's load the pretrained model. Since we're performing sequence classification, we'll use `AutoModelForSequenceClassification` and specify the number of output labels.
 
-7. **Create Trainer:**
-   - Instantiate a `Trainer` to manage the training process.
+```python
+from transformers import AutoModelForSequenceClassification
 
-   ```python
-   from transformers import Trainer
-   trainer = Trainer(
-       model=model,
-       args=training_args,
-       train_dataset=small_train_dataset,
-       eval_dataset=small_eval_dataset,
-       compute_metrics=compute_metrics
-   )
-   ```
+model = AutoModelForSequenceClassification.from_pretrained("google-bert/bert-base-cased", num_labels=5, torch_dtype="auto")
+```
 
-8. **Train:**
-   - Fine-tune the model by calling the `train()` method.
+##### Prepare the Data
 
-   ```python
-   trainer.train()
-   ```
+Next, remove unnecessary columns from the dataset and rename the label column to `labels` since the model expects the argument to be named `labels`.
 
-9. **TensorFlow Fine-tuning**:
+```python
+tokenized_datasets = tokenized_datasets.remove_columns(["text"])
+tokenized_datasets = tokenized_datasets.rename_column("label", "labels")
+tokenized_datasets.set_format("torch")
+```
 
-   - Use Keras API for fine-tuning with TensorFlow, which includes tokenizing data and fitting the model.
+Create DataLoader for both training and evaluation:
 
-   ```python
-   from transformers import TFAutoModelForSequenceClassification
-   from tensorflow.keras.optimizers import Adam
+```python
+from torch.utils.data import DataLoader
 
-   model = TFAutoModelForSequenceClassification.from_pretrained("google-bert/bert-base-cased")
-   model.compile(optimizer=Adam(3e-5))
-   model.fit(tokenized_data, labels)
-   ```
+train_dataloader = DataLoader(small_train_dataset, shuffle=True, batch_size=8)
+eval_dataloader = DataLoader(small_eval_dataset, batch_size=8)
+```
 
-10. **Native PyTorch Fine-tuning**:
+##### Optimizer and Learning Rate Scheduler
 
-    - Fine-tune using PyTorch by manually handling tokenized datasets and using a custom training loop.
+We will use the **AdamW** optimizer and create a learning rate scheduler to adjust the learning rate during training.
 
-    ```python
-    from torch.utils.data import DataLoader
-    from torch.optim import AdamW
-    from transformers import get_scheduler
-    import torch
-    ```
+```python
+from torch.optim import AdamW
+from transformers import get_scheduler
 
-    Training Loop:
+optimizer = AdamW(model.parameters(), lr=5e-5)
 
-    ```python
-    from tqdm.auto import tqdm
-    progress_bar = tqdm(range(num_training_steps))
-    for epoch in range(num_epochs):
-        for batch in train_dataloader:
-            batch = {k: v.to(device) for k, v in batch.items()}
-            outputs = model(**batch)
-            loss = outputs.loss
-            loss.backward()
-            optimizer.step()
-            lr_scheduler.step()
-            optimizer.zero_grad()
-            progress_bar.update(1)
-    ```
+num_epochs = 3
+num_training_steps = num_epochs * len(train_dataloader)
+lr_scheduler = get_scheduler(
+    name="linear", optimizer=optimizer, num_warmup_steps=0, num_training_steps=num_training_steps
+)
+```
 
-    **Evaluation:**
+#### 3. Training Loop
 
-    ```python
-    metric = evaluate.load("accuracy")
-    model.eval()
-    for batch in eval_dataloader:
+To track progress during training, use the `tqdm` library to add a progress bar:
+
+```python
+from tqdm.auto import tqdm
+
+progress_bar = tqdm(range(num_training_steps))
+
+model.train()
+for epoch in range(num_epochs):
+    for batch in train_dataloader:
         batch = {k: v.to(device) for k, v in batch.items()}
-        with torch.no_grad():
-            outputs = model(**batch)
+        outputs = model(**batch)
+        loss = outputs.loss
+        loss.backward()
 
-        logits = outputs.logits
-        predictions = torch.argmax(logits, dim=-1)
-        metric.add_batch(predictions=predictions, references=batch["labels"])
+        optimizer.step()
+        lr_scheduler.step()
+        optimizer.zero_grad()
+        progress_bar.update(1)
+```
 
-    metric.compute()
-    ```
+#### 4. Evaluation
 
+To evaluate the model, calculate accuracy by comparing predictions with the true labels:
+
+```python
+import evaluate
+
+metric = evaluate.load("accuracy")
+model.eval()
+
+for batch in eval_dataloader:
+    batch = {k: v.to(device) for k, v in batch.items()}
+    with torch.no_grad():
+        outputs = model(**batch)
+
+    logits = outputs.logits
+    predictions = torch.argmax(logits, dim=-1)
+    metric.add_batch(predictions=predictions, references=batch["labels"])
+
+metric.compute()
+```
+
+#### 5. Conclusion
+
+This concludes the fine-tuning process using PyTorch. You’ve loaded a pretrained model, prepared your dataset, trained the model on the task-specific data, and evaluated its performance.
+
+You can adjust the hyperparameters (e.g., batch size, learning rate, number of epochs) and experiment with other improvements like mixed precision training or gradient accumulation.
