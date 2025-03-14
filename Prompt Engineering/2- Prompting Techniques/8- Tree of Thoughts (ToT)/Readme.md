@@ -126,5 +126,9 @@ solution_tree = tree_of_thoughts_solver(initial_prompt)
 - Long (2023). "Reinforcement Learning-Driven Tree Search Strategies for LLMs."
 - Sun (2023). "PanelGPT: Collaborative LLM Decision-Making."
 
+
+# Also check this repo:
+- https://github.com/kyegomez/tree-of-thoughts
+
 ---
 
