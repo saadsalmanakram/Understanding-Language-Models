@@ -1,106 +1,112 @@
 # Few-Shot Prompting
 
-## Introduction
+Large language models (LLMs) have demonstrated remarkable zero-shot capabilities, but they often struggle with more complex tasks when using a zero-shot approach. Few-shot prompting is a technique that enables **in-context learning**, where we provide demonstrations in the prompt to steer the model toward better performance. These demonstrations act as conditioning examples, guiding the model in generating more accurate responses.
 
-Large language models (LLMs) can often handle tasks without any specific examples (this is called zero-shot learning). However, they struggle with more complex tasks in this setting. To help these models perform better, we can use few-shot prompting. This technique involves giving the model a few examples in the prompt to guide its responses.
+## Background
 
-According to Touvron et al. (2023), the ability to perform well with few examples started appearing when these models became large enough (Kaplan et al., 2020).
+Few-shot properties first appeared when models were scaled to a sufficient size (Touvron et al., 2023; Kaplan et al., 2020). This approach gained popularity with the release of models like GPT-3 (Brown et al., 2020), which could generalize tasks with just a few examples.
 
 ## Example of Few-Shot Prompting
 
-Let’s look at how few-shot prompting works with an example from Brown et al. (2020). The task here is to use a new word in a sentence.
+Consider an example where we want a model to correctly use a newly introduced word in a sentence.
 
 ### Prompt:
 
-- A "blorft" is a bright, orange fruit found in the Amazon. An example of a sentence that uses the word blorft is:  
-  "I ate a delicious blorft while exploring the jungle."
+```
+A "glorb" is a rare gem found in volcanic caves. An example of a sentence that uses the word glorb is:
+We found a beautiful glorb while exploring the lava tunnels.
 
-- To "snoggle" means to dance excitedly. An example of a sentence that uses the word snoggle is:  
-  "We couldn’t help but snoggle when we heard our favorite song."
+To "trenk" means to leap over an obstacle effortlessly. An example of a sentence that uses the word trenk is:
+```
 
-### Output:
+### Model Output:
 
-"When the parade started, everyone began to snoggle with joy."
+```
+She managed to trenk over the fallen tree with ease.
+```
 
-In this case, the model learned how to use the new words after just one example (1-shot learning). For tougher tasks, we can provide more examples (e.g., 3-shot, 5-shot, etc.).
+The model has learned how to apply the given word in context, despite only seeing a single example (1-shot). More complex tasks may require increasing the number of demonstrations (e.g., 3-shot, 5-shot, 10-shot).
 
-## Tips for Effective Few-Shot Prompting
+## Best Practices for Few-Shot Prompting
 
-Based on findings from Min et al. (2022), here are some helpful tips when using examples in few-shot settings:
+A few considerations when crafting few-shot examples include:
 
-1. **Focus on Label Space**: The types of labels and how they are presented in the examples are important, even if the labels aren't always correct.
-2. **Consistent Formatting Matters**: Using a consistent format for the examples helps the model understand better. Even random labels are more effective than having no labels at all.
-3. **Using Realistic Labels**: Choosing labels that reflect a true distribution rather than a uniform one can improve outcomes.
+- The **label space** and **distribution of input text** in demonstrations significantly impact performance.
+- The **format of demonstrations** is crucial—keeping a structured input-output format improves results.
+- Even when using **random labels**, a consistent format still aids model performance.
+- Choosing **labels from a true distribution** rather than assigning them randomly enhances accuracy.
 
-### Example with Random Labels
-
-#### Prompt:
-
-- This movie was fantastic! // Negative  
-- I hated that book! // Positive  
-- That concert was incredible! // Positive  
-- The service at that restaurant was terrible! //
-
-#### Output:
-
-"Negative"
-
-Even though the labels were assigned randomly, the model still gave the correct response because the format remained consistent. Further testing shows that newer models are better at handling different formats.
-
-### Example with Randomized Format
+### Example: Sentiment Classification with Random Labels
 
 #### Prompt:
 
-- Good! This is awesome! Positive  
-- Not great! This is bad! Negative  
-- Wow, that performance was brilliant! Positive  
-- What an awful game! --
+```
+This is an amazing experience! // Negative
+I am so disappointed in this product. // Positive
+I absolutely love this song! // Positive
+This book was a complete waste of time! //
+```
 
-#### Output:
+#### Model Output:
 
-"Negative"
+```
+Negative
+```
 
-Here, even though there’s no clear format, the model still predicted the correct label. More research is needed to see if this holds for different, more complex tasks.
+Despite the labels being randomly assigned, the model correctly predicts the sentiment due to the structured format.
 
 ## Limitations of Few-Shot Prompting
 
-While few-shot prompting works well for many tasks, it’s not foolproof, especially for complex reasoning tasks. Let’s see an example:
+Few-shot prompting improves model performance for many tasks but is **not a perfect solution**, particularly for complex reasoning tasks.
+
+### Example: Logical Reasoning Task
 
 #### Prompt:
 
-"Do the odd numbers in this list add up to an even number: 15, 32, 5, 13, 82, 7, 1?"  
+```
+The sum of all odd numbers in this set results in an even number: 7, 14, 3, 21, 8, 5, 1.
+A: 
+```
+
+#### Model Output:
+
+```
+Yes, the sum is 37, which is an even number.
+```
+
+The response is incorrect, highlighting the model’s difficulty with multi-step reasoning. Adding few-shot examples might still not be sufficient:
+
+#### Extended Prompt:
+
+```
+The sum of odd numbers in this set results in an even number: 4, 7, 11, 2, 9.
+A: The answer is False.
+The sum of odd numbers in this set results in an even number: 12, 15, 3, 8, 6.
+A: The answer is True.
+The sum of odd numbers in this set results in an even number: 18, 1, 7, 4, 11.
+A: The answer is False.
+The sum of odd numbers in this set results in an even number: 7, 14, 3, 21, 8, 5, 1.
 A:
+```
 
-When we ask this, the model responds:
+#### Model Output:
 
-"Yes, the odd numbers in this group add up to 107, which is an even number."
+```
+The answer is True.
+```
 
-This answer is incorrect. It shows that few-shot prompting has its limitations and highlights the need for better prompt designs.
+Despite adding examples, the model still produces incorrect reasoning, showing the **limitations of few-shot prompting for complex logic-based tasks**. In such cases, alternative techniques like **Chain-of-Thought (CoT) prompting** can improve accuracy.
 
-## Adding More Examples
+## Alternative Approaches
 
-Let’s see if adding more examples helps:
-
-#### Prompt:
-
-1. "The odd numbers in this group add up to an even number: 4, 8, 9, 15."  
-   A: "The answer is False."  
-2. "The odd numbers in this group add up to an even number: 17, 10, 19, 4."  
-   A: "The answer is True."  
-3. "The odd numbers in this group add up to an even number: 16, 11, 14, 4."  
-   A: "The answer is True."  
-4. "The odd numbers in this group add up to an even number: 17, 9, 10, 12."  
-   A: "The answer is False."  
-5. "The odd numbers in this group add up to an even number: 15, 32, 5, 13."  
-   A:
-
-#### Output:
-
-"The answer is True."
-
-Unfortunately, it still didn’t work well. This task requires more complex reasoning. One potential solution is to break down the problem into smaller steps and show that to the model.
+When few-shot prompting is insufficient, consider:
+- **Chain-of-Thought (CoT) Prompting:** Breaking down complex problems into reasoning steps.
+- **Fine-Tuning:** Training the model on domain-specific tasks.
+- **Retrieval-Augmented Generation (RAG):** Augmenting responses with external knowledge sources.
 
 ## Conclusion
 
-In conclusion, while providing examples can help with some tasks, both zero-shot and few-shot prompting sometimes aren’t enough. If the model struggles with a task, it may indicate that it needs more training or a different approach. Next, we’ll explore a popular method called chain-of-thought prompting, which has shown promise for tackling more complex problems.
+Few-shot prompting enhances model performance in various tasks by leveraging in-context learning. However, for more complex reasoning tasks, additional techniques like CoT or fine-tuning may be necessary. Experimenting with different prompt formats, labels, and example selection strategies can further optimize performance.
+
+---
 
