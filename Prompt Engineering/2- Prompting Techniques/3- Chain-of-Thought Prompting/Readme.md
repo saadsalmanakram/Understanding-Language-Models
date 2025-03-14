@@ -1,97 +1,134 @@
 # Chain-of-Thought Prompting (CoT)
 
-Chain-of-Thought (CoT) prompting is an innovative technique that enables language models to break down complex problems into clear, sequential reasoning steps before arriving at a final answer. This method, introduced by Wei et al. in 2022, has significantly improved the reasoning capabilities of large-scale models, making them more reliable for tasks that require multi-step problem-solving.
+## Introduction
+Chain-of-Thought (CoT) prompting is a powerful technique that enhances the reasoning ability of large language models (LLMs) by explicitly breaking down problems into intermediate reasoning steps. Introduced in Wei et al. (2022), CoT prompting improves the accuracy of complex tasks that require logical reasoning by incorporating intermediate explanations before arriving at the final answer.
 
-Chain-of-Thought prompting enables models to mimic human problem-solving by decomposing tasks into smaller, interpretable steps. This not only improves accuracy but also enhances the model's transparency by revealing its reasoning process. The approach is versatile and can be applied in both few-shot and zero-shot learning scenarios.
+This repository explores various types of CoT prompting, including:
+- **Few-shot CoT Prompting**
+- **Zero-shot CoT Prompting**
+- **Automatic Chain-of-Thought (Auto-CoT)**
 
-## What is Chain-of-Thought Prompting?
-CoT prompting instructs the model to "think step by step" before producing an answer. By providing intermediate reasoning, the model is less likely to skip over important details and more likely to produce a correct and verifiable result. The process involves:
-- **Identifying sub-tasks:** Breaking down the main task into smaller, manageable parts.
-- **Sequential reasoning:** Performing computations or logical steps sequentially.
-- **Final synthesis:** Combining intermediate results to generate the final answer.
+## 1️⃣ Few-shot Chain-of-Thought Prompting
+Few-shot CoT prompting involves providing examples with explicit reasoning to guide the model toward solving new problems more effectively.
 
-> **Example Instruction:** "Let's think step by step."  
-> This simple directive encourages the model to produce a detailed chain-of-thought.
+### 📌 Example:
+```python
+import openai
 
-## Few-shot Chain-of-Thought Prompting
-Few-shot CoT prompting combines the power of CoT with the few-shot learning paradigm by providing a small set of examples that include both the problem and the reasoning process.
+def cot_prompting_few_shot(question):
+    prompt = f"""
+    The odd numbers in this group add up to an even number: 4, 8, 9, 15, 12, 2, 1.
+    A: Adding all the odd numbers (9, 15, 1) gives 25. The answer is False.
+    The odd numbers in this group add up to an even number: 15, 32, 5, 13, 82, 7, 1.
+    A: Adding all the odd numbers (15, 5, 13, 7, 1) gives 41. The answer is False.
+    {question}
+    """
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response["choices"][0]["message"]["content"]
 
-### Example 1:
-**Task:** Determine if the odd numbers in the following group add up to an even number:  
-`4, 8, 9, 15, 12, 2, 1`.
+question = "The odd numbers in this group add up to an even number: 17, 10, 19, 4, 8, 12, 24. A:"
+print(cot_prompting_few_shot(question))
+```
 
-**Response:**
-1. Identify the odd numbers: **9, 15, 1**.
-2. Calculate their sum: **9 + 15 + 1 = 25**.
-3. Since **25 is odd**, the answer is **False**.
+### ✅ Expected Output:
+```
+Adding all the odd numbers (17, 19) gives 36. The answer is True.
+```
 
-### Example 2:
-**Task:** Determine if the odd numbers in this group add up to an even number:  
-`17, 10, 19, 4, 8, 12, 24`.
+## 2️⃣ Zero-shot Chain-of-Thought Prompting
+Zero-shot CoT prompting requires no examples; instead, the model is encouraged to reason step by step by adding the phrase **"Let's think step by step"** to the prompt.
 
-**Response:**
-1. Identify the odd numbers: **17, 19**.
-2. Calculate their sum: **17 + 19 = 36**.
-3. Since **36 is even**, the answer is **True**.
+### 📌 Example:
+```python
+import openai
 
-Even with a single example, the approach encourages the model to follow the reasoning path clearly.
+def zero_shot_cot(question):
+    prompt = f"{question}\nLet's think step by step."
+    
+    response = openai.ChatCompletion.create(
+        model="gpt-4",
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return response["choices"][0]["message"]["content"]
 
-## Zero-shot Chain-of-Thought Prompting
-Zero-shot CoT prompting leverages the same step-by-step reasoning approach but does so without providing any example demonstrations. The prompt includes a cue such as "Let's think step by step," which nudges the model to articulate its reasoning internally.
+question = "I bought 10 apples. Gave 3 away. Bought 5 more. Ate 2. How many do I have left?"
+print(zero_shot_cot(question))
+```
 
-### Example:
-**Task:** You bought 10 apples. You gave 2 to your neighbor and 2 to the repairman. Then, you bought 5 more apples and ate 1. How many apples do you have left?
+### ✅ Expected Output:
+```
+First, you started with 10 apples.
+You gave away 3 apples, so you had 7 left.
+Then you bought 5 more, so now you had 12 apples.
+Finally, you ate 2 apples, so you would remain with 10 apples.
+```
 
-- **Without CoT:**  
-  The model might simply output **11 apples**, which is incorrect.
+## 3️⃣ Automatic Chain-of-Thought (Auto-CoT)
+Auto-CoT is a method that automates the selection and generation of CoT demonstrations. It follows these steps:
 
-- **With Zero-shot CoT:**  
-  **Prompt:** *"You bought 10 apples. You gave 2 to your neighbor and 2 to the repairman. Then, you bought 5 more apples and ate 1. How many apples do you have left? Let's think step by step."*  
-  **Response:**
-  1. Start with **10 apples**.
-  2. Give away **4 apples** (2 + 2), leaving **6 apples**.
-  3. Buy **5 more apples**, resulting in **11 apples**.
-  4. Eat **1 apple**, leaving **10 apples**.
+1. **Clustering questions**: Groups similar questions into clusters.
+2. **Sampling representative questions**: Picks one question per cluster and generates a reasoning chain using Zero-Shot CoT.
+3. **Creating diverse demonstrations**: Ensures a variety of reasoning chains to prevent overfitting on similar reasoning styles.
 
-This structured approach generally leads to more accurate outcomes.
+### 📌 Example:
+```python
+import openai
+from sklearn.cluster import KMeans
+import numpy as np
 
-## Automatic Chain-of-Thought Prompting (Auto-CoT)
-Auto-CoT extends the CoT paradigm by automating the generation of reasoning chains, thereby reducing the manual effort involved in crafting detailed prompts. The process typically involves:
+def generate_cot_for_questions(questions):
+    prompts = [q + "\nLet's think step by step." for q in questions]
+    responses = []
+    
+    for prompt in prompts:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        responses.append(response["choices"][0]["message"]["content"])
+    return responses
 
-1. **Question Clustering:**  
-   Grouping similar questions from a dataset to identify common patterns.
-2. **Demonstration Sampling:**  
-   Selecting representative questions from each cluster and generating their reasoning chains using a zero-shot CoT approach with guidelines (e.g., limiting question length and the number of reasoning steps).
+def auto_cot(questions, n_clusters=3):
+    # Dummy embeddings for clustering
+    embeddings = np.random.rand(len(questions), 5)  # Replace with real embeddings
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    labels = kmeans.fit_predict(embeddings)
+    
+    selected_questions = [questions[i] for i in np.unique(labels)]
+    return generate_cot_for_questions(selected_questions)
 
-This method ensures a diverse set of examples and leverages the power of automated reasoning to improve overall model performance.
+questions = [
+    "What is the sum of the first five prime numbers?",
+    "How many legs does a spider have?",
+    "What is the capital of France?",
+    "If I have 6 apples and give away 2, how many are left?"
+]
+print(auto_cot(questions))
+```
 
-## Benefits and Limitations
-### Benefits:
-- **Improved Accuracy:**  
-  By decomposing problems into smaller steps, models can avoid errors that occur from skipping over complex reasoning.
-- **Enhanced Interpretability:**  
-  The reasoning steps provide insight into the model's decision-making process.
-- **Flexibility:**  
-  CoT can be applied in both few-shot and zero-shot settings, making it a versatile tool for different problem types.
-- **Scalability with Auto-CoT:**  
-  Automating the reasoning chain generation reduces the need for manual prompt engineering.
+### ✅ Expected Output:
+```
+['The first five prime numbers are 2, 3, 5, 7, and 11. Their sum is 28.',
+ 'Spiders have 8 legs.',
+ 'The capital of France is Paris.',
+ 'You started with 6 apples. After giving away 2, you have 4 left.']
+```
 
-### Limitations:
-- **Error Propagation:**  
-  Mistakes in early reasoning steps can lead to incorrect final answers.
-- **Resource Demands:**  
-  More complex prompts may increase computational requirements.
-- **Reliability:**  
-  Although CoT improves reasoning, it is not foolproof and may still produce hallucinations or inconsistencies.
+## 🔥 Key Takeaways
+- **Few-shot CoT** uses explicit examples to guide the model’s reasoning.
+- **Zero-shot CoT** leverages the phrase "Let's think step by step" for improved logical processing.
+- **Auto-CoT** reduces manual effort by automatically selecting and generating reasoning chains from diverse examples.
 
-## Further Reading and References
-- **Wei et al. (2022):**  
-  Introduced the concept of chain-of-thought prompting, demonstrating its impact on reasoning tasks.  
-  [Read the paper](https://arxiv.org/abs/2201.11903) :contentReference[oaicite:0]{index=0}
-- **Kojima et al. (2022):**  
-  Proposed Zero-shot Chain-of-Thought prompting with the simple cue "Let's think step by step."  
-  [Read the paper](https://arxiv.org/abs/2205.11916) :contentReference[oaicite:1]{index=1}
-- **Zhang et al. (2022):**  
-  Developed Automatic Chain-of-Thought prompting to automate the reasoning chain generation.  
-  [Read the paper](https://arxiv.org/abs/2206.11546) :contentReference[oaicite:2]{index=2}
+## 📌 Research Papers to check
+- Wei et al. (2022) - Chain-of-Thought Prompting in Large Language Models
+- Kojima et al. (2022) - Zero-shot Chain of Thought
+- Zhang et al. (2022) - Automatic Chain-of-Thought Prompting
+
+
+---
+🚀 **Explore Chain-of-Thought prompting techniques and improve LLM reasoning!**
 
