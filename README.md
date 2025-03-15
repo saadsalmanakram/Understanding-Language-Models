@@ -1,5 +1,7 @@
 # Understanding-Language-Models
 
+![](https://files.readme.io/0a9715d-IntroToLLM_Visual_1.svg)
+
 ## 📌 Introduction
 Welcome to **Understanding-Language-Models**, a comprehensive repository dedicated to exploring the fundamental concepts, architectures, and core principles behind **Large Language Models (LLMs)**. This repository serves as an educational resource for enthusiasts, students, and professionals eager to delve into the mechanics of how these models function, their evolution, and how they are leveraged in modern AI applications.
 
