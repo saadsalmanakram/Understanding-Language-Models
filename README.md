@@ -29,7 +29,6 @@ This repository is meant for educational purposes and follows an open-source phi
 - **GitHub:** [@saadsalmanakram](https://github.com/saadsalmanakram)
 - **LinkedIn:** [Saad Salman Akram](https://www.linkedin.com/in/saadsalmanakram/)
 - **Hugging Face:** [SaadSalman7](https://huggingface.co/SaadSalman7)
-- **Kaggle:** [@codecavalier](https://www.kaggle.com/codecavalier)
 
 Happy Learning!!! 🚀
 
