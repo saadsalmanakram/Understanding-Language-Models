@@ -1,4 +1,4 @@
-# Understanding Language Model Architectures!
+# Understanding Language Model Architectures
 
 ## 📌 Overview
 Welcome to **Understanding Language Model Architectures**, a repository dedicated to exploring and teaching various architectures used in Natural Language Processing (NLP). This repository covers traditional and modern deep learning approaches, including:
