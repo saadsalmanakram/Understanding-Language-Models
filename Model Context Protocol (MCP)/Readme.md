@@ -2,7 +2,7 @@
 
 ![MCP Logo](https://github.com/modelcontextprotocol/.github/raw/main/profile/assets/light.png)
 
-## 🚀 Get Started (Official Site: [](https://modelcontextprotocol.io/introduction))
+## 🚀 Get Started ([Official Site:](https://modelcontextprotocol.io/introduction), [Official Github:](http://github.com/modelcontextprotocol))
 MCP is an open protocol that standardizes how applications provide context to Large Language Models (LLMs). Think of MCP like a **USB-C port** for AI applications—just as USB-C provides a universal way to connect devices, MCP enables AI models to connect with diverse data sources and tools in a standardized way.
 
 ### 🌟 What's New?
